@@ -32,7 +32,12 @@ class AmoCrmController {
         return $contact['_embedded']['contacts'][0]['id'];
     }
 
-    public static function createAmoLead(AmoCrmClass $client, array $formData, int $contactId, int $timerEnd): void {
+    public static function createAmoLead(
+        AmoCrmClass $client,
+        array $formData,
+        int $contactId,
+        int $timerEnd
+    ): void {
         $clientPageTime = $timerEnd - $formData['timer_start'];
         if ($clientPageTime > 30) {
             $checkBoxField = true;

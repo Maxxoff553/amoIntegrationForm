@@ -1,2 +1,0 @@
-Ошибка: Bad request
-Код ошибки: 400https://olegkovalev553.amocrm.ru/api/v4/leads

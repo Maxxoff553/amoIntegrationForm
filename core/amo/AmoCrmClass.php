@@ -11,21 +11,21 @@ class AmoCrmClass {
     function __construct() {
         if(file_exists(AmoCrmClass::TOKEN_FILE)) {
             $expires_in = json_decode(file_get_contents(AmoCrmClass::TOKEN_FILE))->{'expires_in'};
-            if($expires_in < time()) {
+            if ($expires_in < time()) {
                 $this->access_token = json_decode(file_get_contents(AmoCrmClass::TOKEN_FILE))->{'access_token'};
                 $this->getToken(true);
-            }
-            else
+            } else {
                 $this->access_token = json_decode(file_get_contents(AmoCrmClass::TOKEN_FILE))->{'access_token'};
-        }
-        else
+            }
+        } else {
             $this->getToken();
+        }
     }
 
     private function getToken($refresh = false): void {
         $link = 'https://' . AmoCrmClass::SUB_DOMAIN . '.amocrm.ru/oauth2/access_token';
 
-        if($refresh) {
+        if ($refresh) {
             $data = [
                 'client_id' => AmoCrmClass::CLIENT_ID,
                 'client_secret' => AmoCrmClass::CLIENT_SECRET,
@@ -53,7 +53,7 @@ class AmoCrmClass {
         curl_setopt($curl,CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($curl,CURLOPT_SSL_VERIFYPEER, 1);
         curl_setopt($curl,CURLOPT_SSL_VERIFYHOST, 2);
-        $out = curl_exec($curl);
+        $output = curl_exec($curl);
         $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
@@ -68,20 +68,16 @@ class AmoCrmClass {
             503 => 'Service unavailable',
         ];
 
-        try
-        {
+        try {
             if ($code < 200 || $code > 204) {
-                throw new Exception(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
+                throw new Exception($errors[$code] ?? 'Undefined error', $code);
             }
-        }
-        catch(Exception $e)
-        {
-            echo $out;
+        } catch(Exception $e) {
+            echo $output;
             die('Ошибка: ' . $e->getMessage() . PHP_EOL . 'Код ошибки: ' . $e->getCode());
         }
 
-        $response = json_decode($out, true);
-
+        $response = json_decode($output, true);
         $this->access_token = $response['access_token'];
 
         $token = [
@@ -135,7 +131,6 @@ class AmoCrmClass {
             $this->Error('Ошибка: ' . $E->getMessage() . PHP_EOL . 'Код ошибки: ' . $E->getCode() . $link);
         }
 
-
         return $output;
     }
 
@@ -144,7 +139,6 @@ class AmoCrmClass {
         try {
             $url = 'https://' . AmoCrmClass::SUB_DOMAIN . '.amocrm.ru/api/v4/' . $service;
             $result = json_decode($this->tokenCurlRequest($url, $params), true);
-            usleep(250000); //???
         } catch (ErrorException $e) {
             $this->Error($e);
         }
